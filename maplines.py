@@ -25,12 +25,38 @@ def token_iter(s: str):
 
 # convert string into 64-bit SimHash
 def simhash64(s: str) -> int:
-    v = [0]*64
-    for tok in token_iter(s):
-        h = int(hashlib.blake2b(tok.encode(), digest_size=8).hexdigest(), 16)
-        for i in range(64):
-            v[i] += 1 if (h >> i) & 1 else -1
-    return sum((1 << i) for i, val in enumerate(v) if val >= 0)
+    # 记录每一位 bit 的“票数”
+    bit_votes = [0] * 64
+
+    # 先把所有 token 算出来，方便打印调试信息
+    tokens = list(token_iter(s))
+    debug_print(f"[simhash64] input string: {s!r}")
+    debug_print(f"[simhash64] tokens: {tokens}")
+
+    for tok in tokens:
+        # 对每个 token 计算 64-bit 哈希值
+        h_hex = hashlib.blake2b(tok.encode("utf-8"), digest_size=8).hexdigest()
+        h_int = int(h_hex, 16)
+
+        # 打印每个 token 的哈希（十六进制更直观）
+        debug_print(f"  [simhash64] token={tok!r}, hash_hex={h_hex}, hash_int={h_int:#018x}")
+
+        # 遍历 64 位，把 1/0 转换成 +1/-1
+        for bit_index in range(64):
+            if (h_int >> bit_index) & 1:
+                bit_votes[bit_index] += 1
+            else:
+                bit_votes[bit_index] -= 1
+
+    # 根据每一位的“票数”构造最终的 64-bit 整数
+    result_hash = 0
+    for bit_index, vote in enumerate(bit_votes):
+        if vote >= 0:
+            result_hash |= (1 << bit_index)
+
+    debug_print(f"[simhash64] result hash for string {s!r}: {result_hash:#018x}")
+    return result_hash
+
 
 # compare 64-bit SimHash of 2 strings
 # smallest the return, the more similary they are
