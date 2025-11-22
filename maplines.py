@@ -399,7 +399,6 @@ if __name__ == "__main__":
     ap.add_argument("file_1", nargs="?", default="old.txt")
     ap.add_argument("file_2", nargs="?", default="new.txt")
 
-    
     # deafult k = 10, thigh = 0.85, Tmid = 0.65, window = 4, maxspan = 2
     ap.add_argument("-o", "--output", default="mapping.json")
     ap.add_argument("--k", type=int, default=10)
@@ -408,7 +407,16 @@ if __name__ == "__main__":
     ap.add_argument("--window", type=int, default=4)
     ap.add_argument("--maxspan", type=int, default=2)
 
+    ap.add_argument(
+        "--debug",
+        action="store_true",
+        help="print detailed debug information to the terminal"
+    )
+
     args = ap.parse_args()
+    global DEBUG
+    DEBUG = args.debug
+
 
     with open(args.file_1, encoding="utf-8", errors="ignore") as f:
         old_lines = f.readlines()
