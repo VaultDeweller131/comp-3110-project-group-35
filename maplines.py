@@ -1,6 +1,19 @@
+import re
+import json
 import argparse
-import re, json, argparse, difflib, math, hashlib
+import difflib
+import math
+import hashlib
 from collections import Counter
+
+# 全局调试开关：默认不打印调试信息
+DEBUG = False
+
+def debug_print(*args, **kwargs):
+
+    if DEBUG:
+        print(*args, **kwargs)
+
 
 # remove extra space
 def normalize_line(s: str) -> str:
